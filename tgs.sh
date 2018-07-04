@@ -28,13 +28,14 @@ dpkg --add-architecture i386
 apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils python util-linux ca-certificates binutils bc tmux
 
 # Minecraft specific
-if [ "$GAMENAME" == "mcserver" ]; then
-apt -q -y remove openjdk-11*
-apt -q -y purge openjdk-11*
-apt -q -y install openjdk-8-jre-headless oracle-java8-set-default
-update-ca-certificates -f
-add-apt-repository -y ppa:webupd8team/java
-  fi
+if [ "$GAMESERVER" == "mcserver" ]
+then
+  apt -q -y remove openjdk-11*
+  apt -q -y purge openjdk-11*
+  apt -q -y install openjdk-8-jre-headless oracle-java8-set-default
+  update-ca-certificates -f
+  add-apt-repository -y ppa:webupd8team/java
+ fi
 
 # Install fail2ban and update all packages
 apt-get -q -y install fail2ban
@@ -66,11 +67,6 @@ echo $HOSTNAME > /etc/hostname
 hostname -F /etc/hostname
 echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
 
+
 # Start it up!
 su - $GAMESERVER -c "/home/$GAMESERVER/$GAMESERVER start"
-
-# Remove StackScript breadcrumbs
-# rm /root/stackscript.log
-# rm /root/StackScript
-
-# 
