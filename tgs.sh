@@ -67,6 +67,10 @@ echo $HOSTNAME > /etc/hostname
 hostname -F /etc/hostname
 echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
 
-
 # Start it up!
 su - $GAMESERVER -c "/home/$GAMESERVER/$GAMESERVER start"
+
+# Remove StackScript traces
+# rm /root/stackscript.log
+# rm /root/StackScript
+
