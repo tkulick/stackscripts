@@ -12,6 +12,8 @@
 #<UDF name="gamename" label="Game Server Name">
 # GAMENAME=
 #
+# Version control: https://github.com/tkulick/game-stackscript
+#
 
 # Added logging for debug purposes
 exec >  >(tee -a /root/stackscript.log)
