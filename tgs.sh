@@ -25,12 +25,16 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 # Install LinuxGSM and the Game Server of your choice
 export DEBIAN_FRONTEND=noninteractive
 dpkg --add-architecture i386
-add-apt-repository -y ppa:webupd8team/java
+apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils python util-linux ca-certificates binutils bc tmux
+
+# Minecraft specific
+if [ "${GAMENAME}" == "mcserver" ]; then
 apt -q -y remove openjdk-11*
 apt -q -y purge openjdk-11*
-apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils python util-linux ca-certificates binutils bc tmux openjdk-8-jre-headless
-apt -q -y install oracle-java8-set-default
+apt -q -y install openjdk-8-jre-headless oracle-java8-set-default
 update-ca-certificates -f
+add-apt-repository -y ppa:webupd8team/java
+  fi
 
 # Install fail2ban and update all packages
 apt-get -q -y install fail2ban
