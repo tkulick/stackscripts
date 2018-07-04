@@ -30,11 +30,11 @@ apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils
 # Minecraft specific
 if [ "$GAMESERVER" == "mcserver" ]
 then
+  add-apt-repository -y ppa:webupd8team/java
   apt -q -y remove openjdk-11*
   apt -q -y purge openjdk-11*
   apt -q -y install openjdk-8-jre-headless oracle-java8-set-default
   update-ca-certificates -f
-  add-apt-repository -y ppa:webupd8team/java
  fi
 
 # Install fail2ban and update all packages
