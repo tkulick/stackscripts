@@ -25,7 +25,7 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 # Install LinuxGSM and the Game Server of your choice
 export DEBIAN_FRONTEND=noninteractive
 dpkg --add-architecture i386
-apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils python util-linux ca-certificates binutils bc tmux
+apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip software-properties-common bsdmainutils python util-linux ca-certificates binutils bc tmux
 
 #
 # Game specific settings
@@ -74,6 +74,49 @@ rm gamecron
 echo $HOSTNAME > /etc/hostname
 hostname -F /etc/hostname
 echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
+
+# If the game can be managed via Pterodactyl; install and run it!
+# https://docs.pterodactyl.io/docs/downloading
+if [ "$GAMESERVER" == "mcserver" ]
+then
+  add-apt-repository -y ppa:ondrej/php
+  add-apt-repository -y ppa:chris-lea/redis-server
+  curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
+  apt update
+  apt -q -y install php7.2 php7.2-cli php7.2-gd php7.2-mysql php7.2-pdo php7.2-mbstring php7.2-tokenizer php7.2-bcmath php7.2-xml php7.2-fpm php7.2-curl php7.2-zip mariadb-server nginx curl tar unzip git redis-server
+  mkdir -p /var/www/pterodactyl
+  cd /var/www/pterodactyl
+  curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/download/v0.7.9/panel.tar.gz
+  tar --strip-components=1 -xzvf panel.tar.gz
+  chmod -R 755 storage/* bootstrap/cache
+  curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+  cp .env.example .env
+  composer install --no-dev
+  php artisan key:generate --force
+  
+  # Setup MySQL with non-root user
+  mysql -u root -p
+    USE mysql;
+    CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY 'pteropass';
+    CREATE DATABASE panel;
+    GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1';
+    FLUSH PRIVILEGES;
+    quit;
+
+  php artisan p:environment:setup
+  php artisan p:environment:database
+  php artisan migrate --seed
+  php artisan p:user:make
+  chown -R www-data:www-data *
+  echo "* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1" >> gamecron
+  crontab gamecron
+  rm gamecron
+  systemctl enable pteroq.service
+  systemctl start pteroq
+  ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
+  service nginx restart
+
+fi
 
 # Start it up!
 su - $GAMESERVER -c "/home/$GAMESERVER/$GAMESERVER start"
