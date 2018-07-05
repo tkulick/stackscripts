@@ -28,10 +28,12 @@ apt -q -y install git openjdk-8-jre-headless
 adduser --disabled-password --gecos "" spigot
 chown -R spigot:spigot /home/spigot
 
+# Install and compile!
 su - spigot -c "mkdir /home/spigot/BuildTools && mkdir /home/spigot/spigot"
 su - spigot -c "wget -O ~/BuildTools/BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
 su - spigot -c "git config --global --unset core.autocrlf"
 su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
-su - spigot -c "cp ~/BuildTools/BuildTools.jar ~/spigot/spigot.jar"
-su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot/spigot.jar"
 
+# Mark EULA as true and fire up the server
+su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
+su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
