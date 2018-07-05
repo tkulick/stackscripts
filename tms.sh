@@ -32,6 +32,6 @@ su - spigot -c "mkdir /home/spigot/BuildTools && mkdir /home/spigot/spigot"
 su - spigot -c "wget -O ~/BuildTools/BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
 su - spigot -c "git config --global --unset core.autocrlf"
 su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
-su - spigot -c "cp ~/BuildTools/BuildTools.jas ~/spigot/spigot.jar"
+su - spigot -c "cp ~/BuildTools/BuildTools.jar ~/spigot/spigot.jar"
 su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot/spigot.jar"
 
