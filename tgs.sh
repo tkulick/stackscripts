@@ -27,7 +27,11 @@ export DEBIAN_FRONTEND=noninteractive
 dpkg --add-architecture i386
 apt -q -y install mailutils postfix curl wget file bzip2 gzip unzip bsdmainutils python util-linux ca-certificates binutils bc tmux
 
-# Minecraft specific
+#
+# Game specific settings
+#
+
+# Minecraft 
 if [ "$GAMESERVER" == "mcserver" ]
 then
   add-apt-repository -y ppa:webupd8team/java
@@ -36,6 +40,10 @@ then
   apt -q -y install openjdk-8-jre-headless
   update-ca-certificates -f
 fi
+
+#
+# Continuing with download, installation, setup, and execution of the game server
+#
 
 # Install fail2ban and update all packages
 apt-get -q -y install fail2ban
