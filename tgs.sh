@@ -94,7 +94,7 @@ then
   composer install --no-dev
   php artisan key:generate --force
   
-  # Setup MySQL with non-root user
+  # Setup MySQL with non-root user // interactive command
   mysql -u root -p
     USE mysql;
     CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY 'pteropass';
@@ -103,18 +103,47 @@ then
     FLUSH PRIVILEGES;
     quit;
 
+  # Interactive command below; prompts for email and others
   php artisan p:environment:setup
   php artisan p:environment:database
   php artisan migrate --seed
   php artisan p:user:make
   chown -R www-data:www-data *
+  
   echo "* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1" >> gamecron
   crontab gamecron
   rm gamecron
+  
+  touch /etc/systemd/system/pteroq.service
+  cat <<EOT > /etc/systemd/system/pteroq.service
+# Pterodactyl Queue Worker File
+# ----------------------------------
+# File should be placed in:
+# /etc/systemd/system
+#
+# nano /etc/systemd/system/pteroq.service
+
+[Unit]
+Description=Pterodactyl Queue Worker
+After=redis-server.service
+
+[Service]
+# On some systems the user and group might be different.
+# Some systems use `apache` as the user and group.
+User=www-data
+Group=www-data
+Restart=always
+ExecStart=/usr/bin/php /var/www/pterodactyl/artisan queue:work --queue=high,standard,low --sleep=3 --tries=3
+
+[Install]
+WantedBy=multi-user.target
+EOT
+
   systemctl enable pteroq.service
   systemctl start pteroq
   ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
   service nginx restart
+  
 
 fi
 
