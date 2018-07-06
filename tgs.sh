@@ -115,9 +115,9 @@ EOT
   echo "Password for DB is $dbpassword" >> /home/mcserver/ptero-pass.txt
 
   # Interactive commands
-  php artisan p:env --dbhost=localhost --dbport=3306 --dbname=pterodactyl --dbuser=panel --dbpass=$dbpassword --url=http://$FQDN --timezone=America/New_York
+  php artisan p:environment:setup --dbhost=localhost --dbport=3306 --dbname=pterodactyl --dbuser=panel --dbpass=$dbpassword --url=http://$FQDN --timezone=America/New_York
   php artisan migrate --seed
-  php artisan p:user --email="$EMAIL" --password=$PTEROPASS --admin=1  
+  php artisan p:user:make --email="$EMAIL" --password=$PTEROPASS --admin=1  
   
   chown -R www-data:www-data *
   
