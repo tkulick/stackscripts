@@ -116,9 +116,9 @@ EOT
 
   # Interactive commands
   php artisan p:environment:setup --url=http://$FQDN --timezone=America/New_York --author=$EMAIL --cache=redis --session=database --queue=database --disable-settings-ui -n
-  php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=panel --password=$dbpassword -n
+  php artisan p:environment:database --host=127.0.0.1 --port=3306 --database=panel --username=panel --password=$dbpassword -n
   php artisan migrate --seed --force
-  php artisan p:user:make --email="$EMAIL" --password=$PTEROPASS --admin=1 -n
+  php artisan p:user:make --email=$EMAIL --username=$GAMESERVER --name-first=$GAMESERVER --name-last=$GAMESERVER --password=$PTEROPASS --admin=1 -n
   
   chown -R www-data:www-data *
   
@@ -274,10 +274,10 @@ server {
         }
     ' | tee /etc/nginx/sites-available/pterodactyl.conf >/dev/null 2>&1    
 
-   service nginx restart  
+  service nginx restart  
   
   # Installing the daemons
-  apt -q -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
+  apt -q -y install linux-image-extra-$(uname -r) linux-image-extra-virtual npm
   apt -y update
   curl -sSL https://get.docker.com/ | sh
   usermod -aG docker $GAMESERVER
