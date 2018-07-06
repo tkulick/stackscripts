@@ -12,6 +12,12 @@
 #<UDF name="gamename" label="Game Server Name">
 # GAMENAME=
 #
+#<UDF name="email" label="Email Address">
+# EMAIL=
+#
+#<UDF name="pteropass" label="Password">
+# PTEROPASS=
+#
 # Version control: https://github.com/tkulick/game-stackscript
 #
 
@@ -95,26 +101,31 @@ then
   php artisan key:generate --force
   
   # Setup MySQL with non-root user // interactive command
-  mysql -u root -p
+  dbpassword=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1` 
+  cat <<EOT > ptero.sql
     USE mysql;
-    CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY 'pteropass';
+    CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$dbpassword';
     CREATE DATABASE panel;
     GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1';
     FLUSH PRIVILEGES;
     quit;
+EOT
+  mysql -u root < ptero.sql
+  rm ptero.sql
+  echo "Password for DB is $dbpassword" >> /home/mcserver/ptero-pass.txt
+
 
   # Interactive command below; prompts for email and others
-  php artisan p:environment:setup
-  php artisan p:environment:database
+  php artisan pterodactyl:env --dbhost=localhost --dbport=3306 --dbname=pterodactyl --dbuser=panel --dbpass=$dbpassword --url=http://$FQDN --timezone=America/New_York
   php artisan migrate --seed
-  php artisan p:user:make
+  php artisan pterodactyl:user --email="$EMAIL" --password=$PTEROPASS --admin=1  
+  
   chown -R www-data:www-data *
   
   echo "* * * * * php /var/www/pterodactyl/artisan schedule:run >> /dev/null 2>&1" >> gamecron
   crontab gamecron
   rm gamecron
   
-  touch /etc/systemd/system/pteroq.service
   cat <<EOT > /etc/systemd/system/pteroq.service
 # Pterodactyl Queue Worker File
 # ----------------------------------
@@ -141,10 +152,184 @@ EOT
 
   systemctl enable pteroq.service
   systemctl start pteroq
-  ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
-  service nginx restart
-  
 
+echo '
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name '"${FQDN}"';
+    
+        root "/var/www/pterodactyl/html/public";
+        index index.html index.htm index.php;
+        charset utf-8;
+    
+        location / {
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+    
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location = /robots.txt  { access_log off; log_not_found off; }
+    
+        access_log off;
+        error_log  /var/log/nginx/pterodactyl.app-error.log error;
+    
+        # allow larger file uploads and longer script runtimes
+            client_max_body_size 100m;
+        client_body_timeout 120s;
+    
+        sendfile off;
+    
+        location ~ \.php$ {
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+            fastcgi_index index.php;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_intercept_errors off;
+            fastcgi_buffer_size 16k;
+            fastcgi_buffers 4 16k;
+            fastcgi_connect_timeout 300;
+            fastcgi_send_timeout 300;
+            fastcgi_read_timeout 300;
+        }
+    
+        location ~ /\.ht {
+            deny all;
+        }
+        location ~ /.well-known {
+            allow all;
+        }
+    }
+' | tee /etc/nginx/sites-available/pterodactyl.conf >/dev/null 2>&1
+
+    ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
+    service nginx restart
+    apt -q -y install letsencrypt
+    letsencrypt certonly -a webroot --webroot-path=/var/www/pterodactyl/html/public --email "$EMAIL" --agree-tos -d "$FQDN"
+    rm /etc/nginx/sites-available/pterodactyl.conf
+    openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+    echo '
+        server {
+            listen 80;
+            listen [::]:80;
+            server_name '"${FQDN}"';
+            # enforce https
+            return 301 https://$server_name$request_uri;
+        }
+        
+        server {
+            listen 443 ssl http2;
+            listen [::]:443 ssl http2;
+            server_name '"${FQDN}"';
+        
+            root /var/www/pterodactyl/html/public;
+            index index.php;
+        
+            access_log /var/log/nginx/pterodactyl.app-accress.log;
+            error_log  /var/log/nginx/pterodactyl.app-error.log error;
+        
+            # allow larger file uploads and longer script runtimes
+            client_max_body_size 100m;
+            client_body_timeout 120s;
+            
+            sendfile off;
+        
+            # strengthen ssl security
+            ssl_certificate /etc/letsencrypt/live/'"${FQDN}"'/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/'"${FQDN}"'/privkey.pem;
+            ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+            ssl_prefer_server_ciphers on;
+            ssl_session_cache shared:SSL:10m;
+            ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:ECDHE-RSA-AES128-GCM-SHA256:AES256+EECDH:DHE-RSA-AES128-GCM-SHA256:AES256+EDH:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4";
+            ssl_dhparam /etc/ssl/certs/dhparam.pem;
+        
+            # Add headers to serve security related headers
+            add_header Strict-Transport-Security "max-age=15768000; preload;";
+            add_header X-Content-Type-Options nosniff;
+            add_header X-XSS-Protection "1; mode=block";
+            add_header X-Robots-Tag none;
+            add_header Content-Security-Policy "frame-ancestors 'self'";
+        
+            location / {
+                    try_files $uri $uri/ /index.php?$query_string;
+              }
+        
+            location ~ \.php$ {
+                fastcgi_split_path_info ^(.+\.php)(/.+)$;
+                fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+                fastcgi_index index.php;
+                include fastcgi_params;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                fastcgi_intercept_errors off;
+                fastcgi_buffer_size 16k;
+                fastcgi_buffers 4 16k;
+                fastcgi_connect_timeout 300;
+                fastcgi_send_timeout 300;
+                fastcgi_read_timeout 300;
+                include /etc/nginx/fastcgi_params;
+            }
+        
+            location ~ /\.ht {
+                deny all;
+            }
+        }
+    ' | tee /etc/nginx/sites-available/pterodactyl.conf >/dev/null 2>&1    
+
+   service nginx restart  
+  
+  # Installing the daemons
+  apt -q -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
+  apt -y update
+  curl -sSL https://get.docker.com/ | sh
+  usermod -aG docker $GAMESERVER
+  systemctl enable docker
+  curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+  apt -q -y install nodejs
+  mkdir -p /srv/daemon /srv/daemon-data
+  chown -R $GAMESERVER:$GAMESERVER /srv/daemon
+  cd /srv/daemon
+  curl -Lo v0.3.7.tar.gz https://github.com/Pterodactyl/Daemon/archive/v0.3.7.tar.gz
+  tar --strip-components=1 -xzvf v0.3.7.tar.gz
+  npm install --only=production
+  
+  bash -c 'cat > /etc/systemd/system/wings.service' <<-EOF
+[Unit]
+Description=Pterodactyl Wings Daemon
+After=docker.service
+[Service]
+User=root
+#Group=some_group
+WorkingDirectory=/srv/daemon
+LimitNOFILE=4096
+PIDFile=/var/run/wings/daemon.pid
+ExecStart=/usr/bin/node /srv/daemon/src/index.js
+Restart=on-failure
+StartLimitInterval=600
+[Install]
+WantedBy=multi-user.target
+EOF
+
+      sudo systemctl daemon-reload
+      sudo systemctl enable wings
+      sudo systemctl start wings
+      sudo service wings start
+
+      sudo usermod -aG www-data $GAMESERVER
+      sudo chown -R www-data:www-data /var/www/pterodactyl/html
+      sudo chown -R www-data:www-data /srv/daemon
+      sudo chmod -R 775 /var/www/pterodactyl/html
+      sudo chmod -R 775 /srv/daemon
+      echo '
+[client]
+user=root
+password='"${PTEROPASS}"'
+[mysql]
+user=root
+password='"${PTEROPASS}"'
+' | sudo -E tee ~/.my.cnf >/dev/null 2>&1
+      sudo chmod 0600 ~/.my.cnf
+      output "Setting mysql root password"
+      sudo mysqladmin -u root password $PTEROPASS 
 fi
 
 # Start it up!
