@@ -108,17 +108,16 @@ then
     CREATE DATABASE panel;
     GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1';
     FLUSH PRIVILEGES;
-    quit;
+    QUIT;
 EOT
   mysql -u root < ptero.sql
   rm ptero.sql
   echo "Password for DB is $dbpassword" >> /home/mcserver/ptero-pass.txt
 
-
-  # Interactive command below; prompts for email and others
-  php artisan pterodactyl:env --dbhost=localhost --dbport=3306 --dbname=pterodactyl --dbuser=panel --dbpass=$dbpassword --url=http://$FQDN --timezone=America/New_York
+  # Interactive commands
+  php artisan p:env --dbhost=localhost --dbport=3306 --dbname=pterodactyl --dbuser=panel --dbpass=$dbpassword --url=http://$FQDN --timezone=America/New_York
   php artisan migrate --seed
-  php artisan pterodactyl:user --email="$EMAIL" --password=$PTEROPASS --admin=1  
+  php artisan p:user --email="$EMAIL" --password=$PTEROPASS --admin=1  
   
   chown -R www-data:www-data *
   
