@@ -205,7 +205,7 @@ echo '
     ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
     service nginx restart
     apt -q -y install letsencrypt
-    letsencrypt certonly -a webroot --webroot-path=/var/www/pterodactyl/html/public --email "$EMAIL" --agree-tos -d "$FQDN"
+    letsencrypt certonly -a webroot --webroot-path=/var/www/pterodactyl/public --email "$EMAIL" --agree-tos -d "$FQDN"
     rm /etc/nginx/sites-available/pterodactyl.conf
     openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
     echo '
