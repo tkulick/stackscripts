@@ -56,3 +56,6 @@ gzip -d -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | 
 
 ufw allow openvpn
 
+
+
+systemctl start openvpn@server
