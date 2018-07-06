@@ -159,7 +159,7 @@ echo '
         listen [::]:80;
         server_name '"${FQDN}"';
     
-        root "/var/www/pterodactyl/html/public";
+        root "/var/www/pterodactyl/public";
         index index.html index.htm index.php;
         charset utf-8;
     
@@ -222,7 +222,7 @@ echo '
             listen [::]:443 ssl http2;
             server_name '"${FQDN}"';
         
-            root /var/www/pterodactyl/html/public;
+            root /var/www/pterodactyl/public;
             index index.php;
         
             access_log /var/log/nginx/pterodactyl.app-accress.log;
