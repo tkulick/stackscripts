@@ -328,7 +328,6 @@ user=root
 password='"${PTEROPASS}"'
 ' | sudo -E tee ~/.my.cnf >/dev/null 2>&1
       sudo chmod 0600 ~/.my.cnf
-      output "Setting mysql root password"
       sudo mysqladmin -u root password $PTEROPASS 
 fi
 
