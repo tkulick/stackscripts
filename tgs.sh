@@ -154,52 +154,51 @@ EOT
   systemctl start pteroq
 
 echo '
-    server {
-        listen 80;
-        listen [::]:80;
-        server_name '"${FQDN}"';
+server {
+    listen 80;
+    server_name '"${FQDN}"';
     
-        root "/var/www/pterodactyl/public";
-        index index.html index.htm index.php;
-        charset utf-8;
-    
-        location / {
-            try_files $uri $uri/ /index.php?$query_string;
-        }
-    
-        location = /favicon.ico { access_log off; log_not_found off; }
-        location = /robots.txt  { access_log off; log_not_found off; }
-    
-        access_log off;
-        error_log  /var/log/nginx/pterodactyl.app-error.log error;
-    
-        # allow larger file uploads and longer script runtimes
-            client_max_body_size 100m;
-        client_body_timeout 120s;
-    
-        sendfile off;
-    
-        location ~ \.php$ {
-            fastcgi_split_path_info ^(.+\.php)(/.+)$;
-            fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-            fastcgi_index index.php;
-            include fastcgi_params;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            fastcgi_intercept_errors off;
-            fastcgi_buffer_size 16k;
-            fastcgi_buffers 4 16k;
-            fastcgi_connect_timeout 300;
-            fastcgi_send_timeout 300;
-            fastcgi_read_timeout 300;
-        }
-    
-        location ~ /\.ht {
-            deny all;
-        }
-        location ~ /.well-known {
-            allow all;
-        }
+    root /var/www/pterodactyl/public;
+    index index.html index.htm index.php;
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
     }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log  /var/log/nginx/pterodactyl.app-error.log error;
+
+    # allow larger file uploads and longer script runtimes
+    client_max_body_size 100m;
+    client_body_timeout 120s;
+  
+    sendfile off;
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        # the fastcgi_pass path needs to be changed accordingly when using CentOS
+        fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param PHP_VALUE "upload_max_filesize = 100M \n post_max_size=100M";
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
 ' | tee /etc/nginx/sites-available/pterodactyl.conf >/dev/null 2>&1
 
     ln -s /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
@@ -256,7 +255,7 @@ echo '
         
             location ~ \.php$ {
                 fastcgi_split_path_info ^(.+\.php)(/.+)$;
-                fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+                fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
                 fastcgi_index index.php;
                 include fastcgi_params;
                 fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
