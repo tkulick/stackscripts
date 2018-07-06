@@ -12,13 +12,7 @@
 #<UDF name="gamename" label="Game Server Name">
 # GAMENAME=
 #
-#<UDF name="email" label="Email Address">
-# EMAIL=
-#
-#<UDF name="pteropass" label="Password">
-# PTEROPASS=
-#
-# Version control: https://github.com/tkulick/game-stackscript
+# Version control: https://github.com/tkulick/stackscripts
 #
 
 # Added logging for debug purposes
@@ -83,6 +77,10 @@ echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
 
 if [ "$GAMESERVER" == "mcserver" ]
 then
+apt -q -y install lamp-server^ sqlite php apache2
+a2enmod rewrite
+/etc/init.d/apache2 reload
+/etc/init.d/apache2 restart
 su - $GAMESERVER -c "wget http://www.multicraft.org/download/linux64 -O multicraft.tar.gz"
 su - $GAMESERVER -c "tar xvzf multicraft.tar.gz"
 su - $GAMESERVER -c "~/multicraft/setup.sh"
