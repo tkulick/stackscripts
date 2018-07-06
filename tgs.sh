@@ -104,9 +104,9 @@ then
   dbpassword=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 18 | head -n 1` 
   cat <<EOT > ptero.sql
     USE mysql;
-    CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY '$dbpassword';
+    CREATE USER 'panel'@'127.0.0.1' IDENTIFIED BY '$dbpassword';
     CREATE DATABASE panel;
-    GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1';
+    GRANT ALL PRIVILEGES ON panel.* TO 'panel'@'127.0.0.1';
     FLUSH PRIVILEGES;
     QUIT;
 EOT
@@ -116,8 +116,8 @@ EOT
 
   # Interactive commands
   php artisan p:environment:setup --url=http://$FQDN --timezone=America/New_York --author=$EMAIL --cache=redis --session=database --queue=database --disable-settings-ui -n
-  php artisan p:environment:database --host=localhost --port=3306 --database=pterodactyl --username=panel --password=$dbpassword -n
-  php artisan migrate --seed
+  php artisan p:environment:database --host=localhost --port=3306 --database=panel --username=panel --password=$dbpassword -n
+  php artisan migrate --seed --force
   php artisan p:user:make --email="$EMAIL" --password=$PTEROPASS --admin=1 -n
   
   chown -R www-data:www-data *
