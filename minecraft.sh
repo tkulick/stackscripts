@@ -53,10 +53,12 @@ su - spigot -c "rm /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
 
 # Setup an Expect script for the install
 cat <<EOT >> /home/spigot/McMyAdmin/install.sh
-#!/usr/bin/expect -f
+#!/usr/bin/expect
 spawn /home/spigot/McMyAdmin/MCMA2_Linux_x86_64 -setpass $PASS -configonly
-expect "Continue? [y/n] : "
-send "y\r"
+expect {
+"n\] : " {send "y"
+exp_continue}
+}
 EOT
 
 chown -R spigot:spigot /home/spigot
