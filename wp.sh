@@ -1,12 +1,15 @@
 #!/bin/bash 
 # 
-# <UDF name="ssuser" Label="New user" example="username" />
-# <UDF name="sspassword" Label="New user password" example="Password" />
-# <UDF name="hostname" Label="Hostname" example="examplehost" />
-# <UDF name="website" Label="Website" example="example.com" />
-# <UDF name="db_password" Label="MySQL root Password" />
-# <UDF name="dbuser" Label="MySQL Username" />
-# <UDF name="dbuser_password" Label="MySQL User Password" />
+# <UDF name="ssuser" Label="New User" example="Account to login to your Linode" />
+# <UDF name="sspassword" Label="New User Password" example="Password for the account" />
+# <UDF name="hostname" Label="Hostname" example="Local hostname for your Linode" />
+# <UDF name="website" Label="Website FQDN" example="Domain for your Linode: example.com" />
+# <UDF name="db_password" Label="MySQL root Password" example="Root password for MySQL for WordPress nstall" />
+# <UDF name="dbuser" Label="MySQL Username" example="Username for WordPress in MySQL" />
+# <UDF name="dbuser_password" Label="MySQL User Password" example="Password for WordPress MySQL user" />
+#
+# Version control: https://github.com/tkulick/stackscripts/
+#
 
 # add sudo user
 adduser $SSUSER --disabled-password --gecos "" && \
