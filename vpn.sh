@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 #<UDF name="KEY_COUNTRY" label="Country">
