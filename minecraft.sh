@@ -43,14 +43,14 @@ chown -R spigot:spigot /home/spigot
 su - spigot -c "chmod +x /home/spigot/McMyAdmin/setup.sh && /home/spigot/McMyAdmin/setup.sh"
 
 # Install and compile!
-#su - spigot -c "mkdir /home/spigot/BuildTools && mkdir /home/spigot/spigot"
-#su - spigot -c "wget -O ~/BuildTools/BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-#su - spigot -c "git config --global --unset core.autocrlf"
-#su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
+su - spigot -c "mkdir /home/spigot/BuildTools && mkdir /home/spigot/spigot"
+su - spigot -c "wget -O ~/BuildTools/BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
+su - spigot -c "git config --global --unset core.autocrlf"
+su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
 
 # Mark EULA as true and fire up the server
-#su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
-#su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
+su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
+su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
 
 # Commenting out Spigot launch since McMyAdmin will launch the server
 #su - spigot -c "tmux new -s spigot -d 'java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar /home/spigot/spigot*.jar'"
