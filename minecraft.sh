@@ -24,7 +24,7 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
 # Install pre-reqs
 export DEBIAN_FRONTEND=noninteractive
-apt -q -y install git openjdk-8-jre-headless expect
+apt -q -y install git openjdk-8-jre-headless expect unzip
 
 # Create a user for Spigot
 adduser --disabled-password --gecos "" spigot
@@ -57,6 +57,8 @@ spawn /home/spigot/McMyAdmin/MCMA2_Linux_x86_64 -setpass $PASS -configonly
 expect "Continue? [y/n] : "
 send "y\r"
 EOT
+
+chown -R spigot:spigot /home/spigot
 
 su - spigot -c "chmod +x /home/spigot/McMyAdmin/install.sh"
 su - spigot -c "/home/spigot/McMyAdmin/install.sh"
