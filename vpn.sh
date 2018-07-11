@@ -43,7 +43,6 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 export DEBIAN_FRONTEND=noninteractive
 apt -q -y install openvpn easy-rsa
 
-
 make-cadir certificates && cd certificates
 source vars
 ./clean-all && ./build-ca
