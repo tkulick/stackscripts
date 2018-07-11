@@ -43,6 +43,11 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 export DEBIAN_FRONTEND=noninteractive
 apt -q -y install openvpn easy-rsa
 
+# Create a user for VPN
+adduser --disabled-password --gecos "" vpn
+chown -R vpn:vpn /home/vpn
+
+su - vpn
 make-cadir certificates && cd certificates
 source vars
 ./clean-all && ./build-ca
@@ -50,11 +55,7 @@ source vars
 ./build-dh
 openvpn --genkey --secret keys/ta.key
 cp keys/{server.crt,server.key,ca.crt,dh2048.pem,ta.key} /etc/openvpn
-
 gzip -d -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server.conf > /dev/null
-
 ufw allow openvpn
-
-
 
 systemctl start openvpn@server
