@@ -58,5 +58,6 @@ expect "Continue? [y/n] : "
 send "y\r"
 EOT
 
-su - spigot -c "/home/spigot/MCMA2_Linux_x86_64 -setpass $PASS -configonly"
-su - spigot -c "/home/spigot/MCMA2_Linux_x86_64"
+su - spigot -c "chmod +x /home/spigot/McMyAdmin/install.sh"
+su - spigot -c "/home/spigot/McMyAdmin/install.sh"
+su - spigot -c "/home/spigot/McMyAdmin/MCMA2_Linux_x86_64"
