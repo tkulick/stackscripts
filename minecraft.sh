@@ -6,6 +6,8 @@
 #<UDF name="fqdn" label="Fully Qualified Domain Name">
 # FQDN=
 #
+#<UDF name="pass" label="McMyAdmin Password">
+# PASS=
 #
 #<UDF name="gamename" label="Game Server Name">
 # GAMENAME=
@@ -22,7 +24,7 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
 # Install pre-reqs
 export DEBIAN_FRONTEND=noninteractive
-apt -q -y install git openjdk-8-jre-headless
+apt -q -y install git openjdk-8-jre-headless expect
 
 # Create a user for Spigot
 adduser --disabled-password --gecos "" spigot
@@ -37,3 +39,24 @@ su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
 # Mark EULA as true and fire up the server
 su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
 su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
+
+# Install McMyAdmin
+cd /usr/local
+wget http://mcmyadmin.com/Downloads/etc.zip
+unzip etc.zip; rm etc.zip
+
+su - spigot -c "mkdir ~/McMyAdmin"
+su - spigot -c "wget -O /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip http://mcmyadmin.com/Downloads/MCMA2_glibc26_2.zip"
+su - spigot -c "unzip /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
+su - spigot -c "rm /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
+
+# Setup an Expect script for the install
+cat <<EOT >> /home/spigot/McMyAdmin/install.sh
+#!/usr/bin/expect -f
+spawn /home/spigot/MCMA2_Linux_x86_64 -setpass $PASS -configonly
+expect "Continue? [y/n] : "
+send "y\r"
+EOT
+
+su - spigot -c "/home/spigot/MCMA2_Linux_x86_64 -setpass $PASS -configonly"
+su - spigot -c "/home/spigot/MCMA2_Linux_x86_64"
