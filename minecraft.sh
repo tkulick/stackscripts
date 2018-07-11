@@ -1,16 +1,7 @@
 #!/bin/bash
 #
-#<UDF name="hostname" label="Hostname">
-# HOSTNAME=
-#
-#<UDF name="fqdn" label="Fully Qualified Domain Name">
-# FQDN=
-#
 #<UDF name="pass" label="McMyAdmin Password">
 # PASS=
-#
-#<UDF name="gamename" label="Game Server Name">
-# GAMENAME=
 #
 # Version control: https://github.com/tkulick/stackscripts
 #
@@ -18,9 +9,6 @@
 # Added logging for debug purposes
 exec >  >(tee -a /root/stackscript.log)
 exec 2> >(tee -a /root/stackscript.log >&2)
-
-# This sets the variable $IPADDR to the IP address the new Linode receives.
-IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
 # Install pre-reqs
 export DEBIAN_FRONTEND=noninteractive
@@ -48,14 +36,15 @@ cd /usr/local
 wget http://mcmyadmin.com/Downloads/etc.zip
 unzip etc.zip; rm etc.zip
 
-su - spigot -c "mkdir ~/McMyAdmin"
+su - spigot -c "mkdir /home/spigot//McMyAdmin"
 su - spigot -c "wget -O /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip http://mcmyadmin.com/Downloads/MCMA2_glibc26_2.zip"
 su - spigot -c "unzip /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
-su - spigot -c "rm /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
+#su - spigot -c "rm /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip"
 
 # Setup an Expect script for the install
 cat <<EOT >> /home/spigot/McMyAdmin/install.sh
 #!/usr/bin/expect
+set timeout 120
 spawn /home/spigot/McMyAdmin/MCMA2_Linux_x86_64 -setpass $PASS -configonly
 expect {
 "n\] : " {send "y"
@@ -65,7 +54,6 @@ EOT
 
 chown -R spigot:spigot /home/spigot
 
-su - spigot -c "chmod +x /home/spigot/McMyAdmin/install.sh"
 su - spigot -c "mv /home/spigot/MCMA2_Linux_x86_64 /home/spigot/McMyAdmin/"
-su - spigot -c "/home/spigot/McMyAdmin/install.sh"
-su - spigot -c "tmux new -s McMyAdmin -d /home/spigot/McMyAdmin/MCMA2_Linux_x86_64"
+su - spigot -c "chmod +x /home/spigot/McMyAdmin/install.sh"
+su - spigot -c "/home/spigot/McMyAdmin/install.sh && tmux new -s McMyAdmin -d /home/spigot/McMyAdmin/MCMA2_Linux_x86_64"
