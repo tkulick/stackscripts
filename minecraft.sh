@@ -52,5 +52,5 @@ su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
 su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
 su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
 
-# Commenting out Spigot launch since McMyAdmin will launch the server
-#su - spigot -c "tmux new -s spigot -d 'java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar /home/spigot/spigot*.jar'"
+# Move Spigot jar
+su - spigot -c "mv /home/spigot/spigot*.jar /home/spigot/McMyAdmin/Minecraft/"
