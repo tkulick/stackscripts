@@ -49,15 +49,16 @@ cat <<EOF >> /home/vpn/setup.sh
 #!/bin/bash
 make-cadir certificates && cd certificates
 source vars
-./clean-all && ./build-ca
-./build-key-server server
-./build-dh
-openvpn --genkey --secret keys/ta.key
-cp keys/{server.crt,server.key,ca.crt,dh2048.pem,ta.key} /etc/openvpn
+/home/vpn/certificates/clean-all && /home/vpn/certificates/build-ca
+/home/vpn/certificates/build-key-server server
+/home/vpn/certificates/build-dh
+/usr/sbin/openvpn --genkey --secret /home/vpn/certificates/keys/ta.key
+cp /home/vpn/certificates/keys/{server.crt,server.key,ca.crt,dh2048.pem,ta.key} /etc/openvpn
 gzip -d -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server.conf > /dev/null
 EOF
 
 # Execute the script under the vpn user
+chown -R vpn:vpn /home/vpn
 su - vpn -c "chmod +x /home/vpn/setup.sh && /home/vpn/setup.sh"
 
 # Update firewall and network routing
