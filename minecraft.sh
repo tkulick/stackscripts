@@ -23,6 +23,8 @@ cd /usr/local
 wget http://mcmyadmin.com/Downloads/etc.zip
 unzip etc.zip; rm etc.zip
 
+su - spigot -c "mkdir /home/spigot/McMyAdmin"
+
 # Setup an Expect script for the install
 cat <<EOT >> /home/spigot/McMyAdmin/install.sh
 #!/usr/bin/expect
@@ -39,7 +41,6 @@ chown -R spigot:spigot /home/spigot
 # Setup a Bash script for the install
 cat <<EOF >> /home/spigot/McMyAdmin/setup.sh
 #!/bin/bash
-mkdir /home/spigot/McMyAdmin
 cd /home/spigot/McMyAdmin
 wget -O /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip http://mcmyadmin.com/Downloads/MCMA2_glibc26_2.zip
 unzip /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip
