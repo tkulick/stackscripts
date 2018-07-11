@@ -63,4 +63,4 @@ chown -R spigot:spigot /home/spigot
 
 su - spigot -c "chmod +x /home/spigot/McMyAdmin/install.sh"
 su - spigot -c "/home/spigot/McMyAdmin/install.sh"
-su - spigot -c "/home/spigot/McMyAdmin/MCMA2_Linux_x86_64"
+su - spigot -c "tmux new -s McMyAdmin -d /home/spigot/McMyAdmin/MCMA2_Linux_x86_64"
