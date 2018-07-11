@@ -1,12 +1,6 @@
 
 #!/bin/bash
 #
-#<UDF name="hostname" label="Hostname">
-# HOSTNAME=
-#
-#<UDF name="fqdn" label="Fully Qualified Domain Name">
-# FQDN=
-#
 #<UDF name="KEY_CONFIG" label="Key configuration">
 # KEY_CONFIG=
 #
