@@ -58,7 +58,7 @@ gzip -d -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | 
 EOF
 
 # Execute the script under the vpn user
-su - vpn -c "chmod+x /home/vpn/setup.sh && /home/vpn/setup.sh"
+su - vpn -c "chmod +x /home/vpn/setup.sh && /home/vpn/setup.sh"
 
 # Update firewall and network routing
 ufw allow openvpn
