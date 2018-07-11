@@ -16,7 +16,7 @@
 #<UDF name="KEY_PROVINCE" label="Province or State">
 # KEY_PROVINCE=
 #
-#<UDF name="KEY_CITY" label="CITY">
+#<UDF name="KEY_CITY" label="City">
 # KEY_CITY=
 #
 #<UDF name="KEY_ORG" label="Organization">
