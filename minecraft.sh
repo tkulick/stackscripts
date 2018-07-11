@@ -25,17 +25,6 @@ unzip etc.zip; rm etc.zip
 
 su - spigot -c "mkdir /home/spigot/McMyAdmin"
 
-# Setup an Expect script for the install
-cat <<EOT >> /home/spigot/McMyAdmin/install.sh
-#!/usr/bin/expect
-set timeout 120
-spawn /home/spigot/McMyAdmin/MCMA2_Linux_x86_64 -setpass $PASS -configonly
-expect {
-"n\] : " {send "y"
-exp_continue}
-}
-EOT
-
 # Setup a Bash script for the install
 cat <<EOF >> /home/spigot/McMyAdmin/setup.sh
 #!/bin/bash
@@ -45,6 +34,7 @@ unzip /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip
 rm /home/spigot/McMyAdmin/MCMA2_glibc26_2.zip
 chmod +x /home/spigot/McMyAdmin/install.sh
 /home/spigot/McMyAdmin/install.sh
+/home/spigot/McMyAdmin/MCMA2_Linux_x86_64 -setpass $PASS -configonly -nonotice
 tmux new -s McMyAdmin -d /home/spigot/McMyAdmin/MCMA2_Linux_x86_64
 EOF
 
