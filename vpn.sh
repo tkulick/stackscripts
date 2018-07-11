@@ -36,9 +36,6 @@
 exec >  >(tee -a /root/stackscript.log)
 exec 2> >(tee -a /root/stackscript.log >&2)
 
-# This sets the variable $IPADDR to the IP address the new Linode receives.
-IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
-
 # Installation
 export DEBIAN_FRONTEND=noninteractive
 apt -q -y install openvpn easy-rsa
@@ -47,7 +44,9 @@ apt -q -y install openvpn easy-rsa
 adduser --disabled-password --gecos "" vpn
 chown -R vpn:vpn /home/vpn
 
-su - vpn
+# Setup a Bash script for the install
+cat <<EOF >> /home/vpn/setup.sh
+#!/bin/bash
 make-cadir certificates && cd certificates
 source vars
 ./clean-all && ./build-ca
@@ -56,6 +55,16 @@ source vars
 openvpn --genkey --secret keys/ta.key
 cp keys/{server.crt,server.key,ca.crt,dh2048.pem,ta.key} /etc/openvpn
 gzip -d -c /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz | sudo tee /etc/openvpn/server.conf > /dev/null
-ufw allow openvpn
+EOF
 
+# Execute the script under the vpn user
+su - vpn -c "chmod+x /home/vpn/setup.sh && /home/vpn/setup.sh"
+
+# Update firewall and network routing
+ufw allow openvpn
+iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE
+sysctl -p /etc/sysctl.conf
+ufw reload
+
+# Fire up openVPN
 systemctl start openvpn@server
