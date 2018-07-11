@@ -1,9 +1,6 @@
 
 #!/bin/bash
 #
-#<UDF name="KEY_CONFIG" label="Key configuration">
-# KEY_CONFIG=
-#
 #<UDF name="KEY_COUNTRY" label="Country">
 # KEY_COUNTRY=
 #
@@ -43,13 +40,14 @@ chown -R vpn:vpn /home/vpn
 cat <<EOF >> /home/vpn/setup.sh
 #!/bin/bash
 make-cadir certificates && cd certificates
-sed -i s/KEY_CONFIG=.*/KEY_CONFIG=\"$KEY_CONFIG\"/ /home/vpn/certificates/vars
+sed -i s/KEY_CONFIG=.*/KEY_CONFIG=\"\$EASY_RSA/openssl-1.0.0.cnf\"/ /home/vpn/certificates/vars
 sed -i s/KEY_COUNTRY=.*/KEY_COUNTRY=\"$KEY_COUNTRY\"/ /home/vpn/certificates/vars
 sed -i s/KEY_PROVINCE=.*/KEY_PROVINCE="$KEY_PROVINCE\"/ /home/vpn/certificates/vars
 sed -i s/KEY_CITY=.*/KEY_CITY=\"$KEY_CITY\"/ /home/vpn/certificates/vars
 sed -i s/KEY_ORG=.*/KEY_ORG=\"$KEY_ORG\"/ /home/vpn/certificates/vars
 sed -i s/KEY_EMAIL=.*/KEY_EMAIL=\"$KEY_EMAIL\"/ /home/vpn/certificates/vars
 sed -i s/KEY_OU=.*/KEY_OU=\"$KEY_OU\"/ /home/vpn/certificates/vars
+
 /home/vpn/certificates/clean-all && /home/vpn/certificates/build-ca
 source vars
 /home/vpn/certificates/build-key-server server
