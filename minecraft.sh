@@ -39,7 +39,9 @@ su - spigot -c "java -jar ~/BuildTools/BuildTools.jar"
 # Mark EULA as true and fire up the server
 su - spigot -c "java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar ~/spigot*.jar"
 su - spigot -c "sed -i \"s/eula=false/eula=true/\" /home/spigot/eula.txt"
-su - spigot -c "tmux new -s spigot -d 'java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar /home/spigot/spigot*.jar'"
+
+# Commenting out Spigot launch since McMyAdmin will launch the server
+#su - spigot -c "tmux new -s spigot -d 'java -Xms1G -Xmx1G -XX:+UseConcMarkSweepGC -jar /home/spigot/spigot*.jar'"
 
 # Install McMyAdmin
 cd /usr/local
