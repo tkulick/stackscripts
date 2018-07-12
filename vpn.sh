@@ -39,7 +39,7 @@ chown -R vpn:vpn /home/vpn
 cat <<EOF >> /home/vpn/setup.sh
 #!/bin/bash
 make-cadir certificates && cd certificates
-sed -i s/KEY_CONFIG=.*/KEY_CONFIG=\"\$EASY_RSA/openssl-1.0.0.cnf\"/ /home/vpn/certificates/vars
+sed -i s/KEY_CONFIG=.*/KEY_CONFIG=\"\\$EASY_RSA/openssl-1.0.0.cnf\"/ /home/vpn/certificates/vars
 sed -i s/KEY_COUNTRY=.*/KEY_COUNTRY=\"$KEY_COUNTRY\"/ /home/vpn/certificates/vars
 sed -i s/KEY_PROVINCE=.*/KEY_PROVINCE=\"$KEY_PROVINCE\"/ /home/vpn/certificates/vars
 sed -i s/KEY_CITY=.*/KEY_CITY=\"$KEY_CITY\"/ /home/vpn/certificates/vars
