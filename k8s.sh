@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #
 #<UDF name="pubkey" label="SSH Public Key">
