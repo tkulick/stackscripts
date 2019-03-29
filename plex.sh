@@ -1,11 +1,5 @@
 #!/bin/bash
 #
-#<UDF name="hostname" label="Hostname" example="Local hostname">
-# HOSTNAME=
-#
-#<UDF name="fqdn" label="Fully Qualified Domain Name" example="Provide the domain name you'd like to use for your server">
-# FQDN=
-#
 # Version control: https://github.com/tkulick/stackscripts
 #
 
