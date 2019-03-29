@@ -30,9 +30,11 @@ mkdir .ssh
 echo $PUBKEY > .ssh/id_rsa.pub
 
 # Download and install pip and the Linode CLI
-apk add py-pip
+apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove
+apt install -y python-pip terraform kubernetes
+snap install kubectl --classic
 pip install linode-cli
 
 # Install cluster
-linode-cli k8s-alpha create $CLUSTER --node-type $NODETYPE --nodes $NODECOUNT --master-type $MASTERTYPE --region $REGION --ssh-public-key $HOME/.ssh/id_rsa.pub options --api-key $TOKEN
+LINODE_CLI_TOKEN=$TOKEN linode-cli k8s-alpha create $CLUSTER --node-type $NODETYPE --nodes $NODECOUNT --master-type $MASTERTYPE --region $REGION --ssh-public-key $HOME/.ssh/id_rsa.pub
 
