@@ -25,9 +25,13 @@
 # Version control: https://github.com/tkulick/stackscripts
 #
 
+# Add one click apps helper
+source <ssinclude StackScriptID="401712">
+
 # Add SSH directory and update pub key
-mkdir .ssh
-echo $PUBKEY > .ssh/id_rsa.pub
+if [[ "$PUBKEY" != "" ]]; then
+  add_pubkey
+fi
 
 # Download and install pip and the Linode CLI
 apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove
